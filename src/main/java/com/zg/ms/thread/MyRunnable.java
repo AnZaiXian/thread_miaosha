@@ -52,16 +52,29 @@ public class MyRunnable implements Runnable {
                     String failuserifo = "fail"+userinfo;
                     String failinfo="用户：" + failuserifo + "商品争抢失败，抢购失败";
                     System.out.println(failinfo);
-                    /* 抢购失败业务逻辑 */
-                    jedis.setnx(failuserifo, failinfo);
+
+                    /* 抢购失败业务逻辑 jedis.set(watchkeys, "100");//设置起始的抢购数*/
+                    /**
+                     * Redis有一系列的命令，特点是以NX结尾，NX是Not eXists的缩写，如SETNX命令就应该理解为：SET if Not eXists。这系列的命令非常有用，这里讲使用SETNX来实现分布式锁。
+
+                     　　直接上重点：
+
+                     　　SET NX 命令是快速失败锁，就是当第一次设置key和value时返回1，当第二次设置相同的key时，返回0，此时对原值不做任何更改。
+                     */
+
+                  jedis.setnx(failuserifo, failinfo);
+                    //jedis.set(failuserifo, failinfo);
+                    System.out.println(failuserifo+"=========失败:"+jedis.get(failuserifo));
                 } else {
                     for(Object succ : list){
                         String succuserifo ="succ"+succ.toString() +userinfo ;
                         String succinfo="用户：" + succuserifo + "抢购成功，当前抢购成功人数:"
                                 + (1-(valint-100));
                         System.out.println(succinfo);
+
                          /* 抢购成功业务逻辑 */
                         jedis.setnx(succuserifo, succinfo);
+                        System.out.println(succuserifo+"=========成功:"+jedis.get(succuserifo));
                     }
 
                 }
@@ -71,7 +84,8 @@ public class MyRunnable implements Runnable {
                 String failinfo1="用户：" + failuserifo + "商品被抢购完毕，抢购失败";
                 System.out.println(failinfo1);
                 jedis.setnx(failuserifo, failinfo1);
-                // Thread.sleep(500);
+                // Thread.sleep(500);  //注意failuserifo本身就是一个字符串,不用加双引号
+                System.out.println(failuserifo+"============="+jedis.get(failuserifo));
                 return;
             }
 

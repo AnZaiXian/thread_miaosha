@@ -20,6 +20,7 @@ public class ThreadMiaoshaApplication {
 
 		final Jedis jedis = new Jedis("192.168.36.129", 6379);
 		jedis.set(watchkeys, "100");//设置起始的抢购数
+		System.out.println("*********设置起始的抢购数********"+jedis.get("watchkeys"));
 		//jedis.del("setsucc", "setfail");
 		jedis.close();
 
@@ -41,5 +42,8 @@ public class ThreadMiaoshaApplication {
 		}
 		return sb.toString();
 	}
+
+
+
 
 }
